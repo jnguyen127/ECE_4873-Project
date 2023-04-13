@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="/static/assets/css/signup_style.css" />
+    <link rel="stylesheet" href="/static/assets/css/alert_style.css" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="wrapper">
+            <div class="title">
+                <div class="logo"><span class="material-symbols-outlined">
+                        energy_savings_leaf
+                    </span></div>
+                <div class="company">Power Tap</div>
+            </div>
+            <form method="POST">
+                <h1>Create An Account</h1>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+                <div class="row">
+                    <span class="material-symbols-outlined">
+                        contact_mail
+                    </span>
+                    <input type="email" id="email" name="email" placeholder="Enter Email" value="{{email}}" required>
+                </div>
+                <div class="row">
+                    <span class="material-symbols-outlined">
+                        badge
+                    </span>
+                    <input type="text" id="firstName" name="firstName" placeholder="Enter First Name"
+                        value="{{firstName}}" required>
+                </div>
+                <div class="row">
+                    <span class="material-symbols-outlined">
+                        badge
+                    </span>
+                    <input type="text" id="lastName" name="lastName" placeholder="Enter Last Name" value="{{lastName}}"
+                        required>
+                </div>
+                <div class="row">
+                    <span class="material-symbols-outlined">
+                        lock
+                    </span>
+                    <input type="password" id="password" name="password" placeholder="Enter Password"
+                        value="{{password}}" required>
+                </div>
+                <div class="row">
+                    <span class="material-symbols-outlined">
+                        lock
+                    </span>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password"
+                        value="{{confirmPassword}}" required>
+                </div>
+                <img src="/static/assets/images/login/visibility_off_FILL0_wght400_GRAD0_opsz48.png" id="visibility">
+                <img src="/static/assets/images/login/visibility_off_FILL0_wght400_GRAD0_opsz48.png" id="visibility2">
+                <div class="button">
+                    <input type="submit"
+                        onclick="confirm('Are you sure you want to continue? You will not be able to change your email after this!')"
+                        value="Sign Up">
+                </div>
+            </form>
+            <div class="signup-link">Already have an account? <a href="/">Login</a></div>
+            <div class="forgot-link">Forgot Password? <a href="/forgot_password">Reset Password</a></div>
+        </div>
+    </div>
+    <!-- Script to show/hide password -->
+    <script>
+        let visibility = document.getElementById("visibility");
+        let password = document.getElementById("password");
+
+        visibility.onclick = function () {
+            if (password.type == "password") {
+                password.type = "text";
+                visibility.src = "/static/assets/images/login/visibility_FILL0_wght400_GRAD0_opsz48.png"
+            }
+            else {
+                password.type = "password";
+                visibility.src = "/static/assets/images/login/visibility_off_FILL0_wght400_GRAD0_opsz48.png"
+            }
+        }
+
+        let visibility2 = document.getElementById("visibility2");
+        let confirmPassword = document.getElementById("confirmPassword");
+        visibility2.onclick = function () {
+            if (confirmPassword.type == "password") {
+                confirmPassword.type = "text";
+                visibility2.src = "/static/assets/images/login/visibility_FILL0_wght400_GRAD0_opsz48.png"
+            }
+            else {
+                confirmPassword.type = "password";
+                visibility2.src = "/static/assets/images/login/visibility_off_FILL0_wght400_GRAD0_opsz48.png"
+            }
+        }
+    </script>
+</body>
+
+</html>

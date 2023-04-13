@@ -1,0 +1,24 @@
+.home-alert-outer {
+    width:100%;
+    display: flex;
+    justify-content: center;
+  }
+
+.home-alert-inner.incorrect {
+    color: red
+}
+
+.alert {
+    position: relative;
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 30px;
+}
+
+.alert.incorrect {
+    color: red
+}
+
+.alert.correct {
+    color: rgb(0, 255, 0)
+}

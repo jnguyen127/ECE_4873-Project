@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="/static/assets/css/navigation_style.css" />
+    <link rel="stylesheet" href="/static/assets/css/account_info_style.css" />
+    <link rel="stylesheet" href="/static/assets/css/alert_style.css" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account Info</title>
+</head>
+
+<body>
+    <nav>
+        <input type="checkbox" id="check" />
+        <label for="check" class="checkbtn">
+            <span class="material-symbols-outlined"> menu </span>
+        </label>
+        <label class="company"><a href="/home"><span class="material-symbols-outlined" id="logo">
+                    energy_savings_leaf </span>Power Tap</a></label>
+        <ul>
+            <li><a href="/home">Dashboard</a></li>
+            <li><a href="/account_info">Account Info</a></li>
+            <li><a href="#">Help</a></li>
+            <li><a href="/logout">Logout</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <center>
+            <h1>Account Info</h1>
+        </center>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert {{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <div class="wrapper">
+                <div class="general-container">
+                    <div class="row">
+                        Email: {{email}}
+                    </div>
+                    <div class="row">
+                    </div>
+                    <div class="row">
+                        First Name: <input type="text" id="firstName" name="firstName" value="{{firstName}}">
+                    </div>
+                    <div class="row">
+                        Last Name: <input type="text" id="lastName" name="lastName" value="{{lastName}}">
+                    </div>
+                    <div class="row">
+                        Device Name: <input type="text" id="deviceName" name="deviceName" value="{{deviceName}}">
+                    </div>
+                </div>
+                <div class="password-container">
+                    <div class="row">
+                        Change Password:
+                        <input type="password" id="currentPassword" name="currentPassword"
+                            placeholder="Enter Current Password" value="{{currentPassword}}">
+                        <input type="password" id="newPassword" name="newPassword" placeholder="Enter New Password"
+                            value="{{newPassword}}">
+                        <input type="password" id="confirmNewPassword" name="confirmNewPassword"
+                            placeholder="Confirm New Password" value="{{confirmNewPassword}}">
+                    </div>
+                </div>
+            </div>
+            <div class="button">
+                <input type="submit" value="Save Changes">
+            </div>
+            <div class="button">
+                <a href="/home">
+                    <input type="button" value="Cancel" />
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>

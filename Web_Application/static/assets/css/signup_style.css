@@ -1,0 +1,177 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+}
+
+body {
+  background: linear-gradient(to right, #018d3b, #ffffff);
+}
+
+.container {
+  max-width: 600px;
+  padding: 0 25px;
+  margin: 200px auto;
+}
+
+.wrapper {
+  width: 100%;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px 1px rgba(0, 0, 0, 0.63);
+}
+
+.wrapper .title {
+  height: 90px;
+  background: #018d3b;
+  border-radius: 5px 5px 0 0;
+  color: #fff;
+  font-size: 30px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wrapper .title .logo {
+  margin-right: 10px;
+}
+
+.wrapper form {
+  position: relative;
+  padding: 30px 25px 25px 25px;
+}
+.wrapper form .row {
+  height: 45px;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.wrapper form .row input {
+  height: 100%;
+  width: 100%;
+  outline: none;
+  padding-left: 60px;
+  padding-right: 60px;
+  border-radius: 10px;
+  border: 1px solid lightgrey;
+  font-size: 18px;
+  transition: all 0.5s ease;
+  background: #f1f1f1;
+}
+.wrapper form .row input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #018d3b;
+}
+
+.wrapper form .row span {
+  position: absolute;
+  width: 47px;
+  height: 100%;
+  color: #fff;
+  font-size: 30px;
+  background: #018d3b;
+  border: 1px solid #018d3b;
+  border-radius: 10px 0 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wrapper form .button input {
+  height: 100%;
+  width: 100%;
+  outline: none;
+  border-radius: 10px;
+  border: 1px solid lightgrey;
+  font-size: 16px;
+  transition: all 0.5s ease;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 500;
+  background: #018d3b;
+  border: 1px solid #018d3b;
+  cursor: pointer;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-top: 30px;
+}
+.wrapper form .button input:hover {
+  scale: 0.97;
+  background: #017430;
+}
+.wrapper form .button input:active {
+  scale: 0.95;
+  background-color: #015a26;
+}
+
+.wrapper .signup-link {
+  text-align: center;
+  padding-bottom: 25px;
+  font-size: 17px;
+}
+.wrapper .signup-link a {
+  color: #018d3b;
+  text-decoration: none;
+}
+
+.signup-link a:hover {
+  text-decoration: underline;
+}
+
+.wrapper .forgot-link {
+  text-align: center;
+  padding-bottom: 25px;
+  font-size: 17px;
+}
+.wrapper .forgot-link a {
+  color: #018d3b;
+  text-decoration: none;
+}
+
+.forgot-link a:hover {
+  text-decoration: underline;
+}
+
+#visibility {
+  position: absolute;
+  width: 35px;
+  height: 35px;
+  right: 40px;
+  bottom: 186px;
+  transition: all 0.5s ease;
+  cursor: pointer;
+}
+#visibility:hover {
+  scale: 0.9;
+}
+#visibility:active {
+  scale: 0.8;
+}
+
+#visibility2 {
+  position: absolute;
+  width: 35px;
+  height: 35px;
+  right: 40px;
+  bottom: 126px;
+  transition: all 0.5s ease;
+  cursor: pointer;
+}
+#visibility2:hover {
+  scale: 0.9;
+}
+#visibility2:active {
+  scale: 0.8;
+}
+
+.container .wrapper form h1 {
+  position: relative;
+  text-align: center;
+  color: black;
+  margin-bottom: 30px;
+}/*# sourceMappingURL=signup_style.css.map */

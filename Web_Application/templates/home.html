@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="/static/assets/css/navigation_style.css" />
+    <link rel="stylesheet" href="/static/assets/css/table_style.css" />
+    <link rel="stylesheet" href="/static/assets/css/home_style.css" />
+    <link rel="stylesheet" href="/static/assets/css/alert_style.css" />
+    <link rel="stylesheet" href="/static/assets/css/loading_style.css" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+    <script type="text/javascript" src="/static/assets/scripts/home.js"></script>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home</title>
+</head>
+
+<body>
+    <nav>
+        <input type="checkbox" id="check" />
+        <label for="check" class="checkbtn">
+            <span class="material-symbols-outlined"> menu </span>
+        </label>
+        <label class="company"><a href="/home"><span class="material-symbols-outlined" id="logo">
+                    energy_savings_leaf </span>Power Tap</a></label>
+        <ul>
+            <li><a href="/home">Dashboard</a></li>
+            <li><a href="/account_info">Account Info</a></li>
+            <li><a href="https://github.gatech.edu/jnguyen357/ECE-4873-Project/wiki">Help</a></li>
+            <li><a href="/logout">Logout</a></li>
+        </ul>
+    </nav>
+    <div class="loader" id="loading">
+        <span class="loader-text">Loading...</div>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="home-alert-outer">
+        <div class="home-alert-inner {{ category }}">{{ message | safe }}</div>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div id="table-2">
+        <table class="click-table">
+            <thead class="click-thead">
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Power</th>
+                </tr>
+            </thead>
+            <tbody class="click-tbody">
+                <tr>
+                    <td>...</td>
+                    <td>...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="toggle-button">
+        <input type="radio" name="toggle" id="chart-radio" onclick="check_view()" checked>
+        <label for="chart-radio" style="user-select: none">Chart</label>
+        <input type="radio" name="toggle" id="table-radio" onclick="check_view()">
+        <label for="table-radio" style="user-select: none">Table</label>
+        <input type="radio" name="toggle" id="both-radio" onclick="check_view()">
+        <label for="both-radio" style="user-select: none">Both</label>
+    </div>
+    <div class="chart-box">
+        <canvas id="lineChart" height="50"></canvas>
+    </div>
+    <div class="button-container" style="margin: 20px">
+        <fieldset>
+            <button id="Now">Now</button>
+            <button id="1M">1M</button>
+            <button id="5M">5M</button>
+            <button id="10M">10M</button>
+            <button id="30M">30M</button>
+        </fieldset>
+    </div>
+    <div class="table_1">
+    </div>
+    <div>
+        <h1>Project Monthly Bill</h1>
+        <h2>Using the last 10 minutes of data...</h2>
+        <table>
+            <tr>
+                <th>$ per kWh</th>
+                <th>Calculated kWh</th>
+            </tr>
+            <tr>
+                <th><form><input type="text" id="dollars_per_kwh"></input></form></th>
+                <th id="calculated_kwh">{{average_kwh}}</th>
+            </tr>
+        </table>
+        <!-- This is where I am going to add the thing that allows you to customize the $/kWh -->
+    </div>
+    <button id="Reload" onclick="reload()">Reload Calculated kWh</button>
+    <button id="Calculate" onclick="changeThing()">Calculate</button>
+    <p id="bill_calculation">Your monthly bill: </p>
+</body>
+
+</html>

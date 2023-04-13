@@ -1,0 +1,31 @@
+table, th, td {
+  padding: 10px;
+  table-layout: fixed;
+  border-collapse: collapse;
+  border: 1px solid #666;
+  text-align: center;
+  width: 100%;
+  font-size: 14px;
+  margin: 20px auto;
+  word-break: break-all;
+}
+
+table {
+  border: 1px solid black;
+}
+
+th {
+  position: sticky;
+  top: 0px;
+  background-color: #018d3b;
+  color: #fff;
+}
+
+#table-1 {
+  margin: 20px;
+  max-width: 350px;
+}
+
+#table-2 {
+  margin: 20px;
+}/*# sourceMappingURL=table_style.css.map */

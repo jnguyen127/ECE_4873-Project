@@ -1,0 +1,45 @@
+$theme-color: #018d3b;
+
+.container {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: -1000;
+}
+
+.wrapper {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px 1px rgba(0, 0, 0, 0.63);
+}
+
+.row {
+    margin-top: 20px;
+}
+
+.row a {
+    color: $theme-color;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.row input {
+    outline: none;
+    border-radius: 10px;
+    margin: 10px;
+    border: 1px solid lightgrey;
+    font-size: 18px;
+    transition: all 0.5s ease;
+    background: #f1f1f1;
+    display: block;
+
+    &:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px $theme-color;
+    }
+}

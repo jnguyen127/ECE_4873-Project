@@ -1,0 +1,120 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins&display=swap");
+* {
+  padding: 0;
+  margin: 0;
+  text-decoration: none;
+  list-style: none;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+nav {
+  background: #018d3b;
+  height: 80px;
+  width: 100%;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+}
+
+label.company {
+  position: absolute;
+  color: white;
+  font-size: 35px;
+  line-height: 80px;
+  padding: 0 10px;
+  font-weight: bold;
+}
+label.company span {
+  position: relative;
+  top: 12px;
+  font-size: 50px;
+  margin-right: 20px;
+}
+label.company a {
+  color: #FFFFFF;
+  text-decoration: none;
+}
+
+nav ul {
+  float: right;
+  margin-right: 20px;
+}
+
+nav ul li {
+  display: inline-block;
+  line-height: 80px;
+  margin: 0 5px;
+}
+nav ul li a {
+  color: white;
+  font-size: 17px;
+  padding: 7px 13px;
+  text-transform: uppercase;
+}
+nav ul li a:hover {
+  background: #017430;
+}
+nav ul li a:active {
+  background: #015a26;
+}
+
+.checkbtn {
+  font-size: 30px;
+  color: white;
+  float: right;
+  line-height: 78px;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-right: 20px;
+  cursor: pointer;
+  display: none;
+}
+
+#check {
+  display: none;
+}
+
+@media (max-width: 1215px) {
+  nav ul li a {
+    font-size: 16px;
+  }
+  .checkbtn {
+    display: block;
+  }
+  ul {
+    position: fixed;
+    width: 100%;
+    height: 100vh;
+    background: #00411b;
+    top: 80px;
+    left: -100%;
+    text-align: center;
+    transition: all 0.5s;
+  }
+  nav ul li {
+    display: block;
+    margin: 0;
+    line-height: 80px;
+  }
+  nav ul li a {
+    display: block;
+    font-size: 20px;
+  }
+  #check:checked ~ ul {
+    left: 0;
+  }
+  nav label span {
+    -webkit-user-select: none;
+       -moz-user-select: none;
+            user-select: none;
+  }
+}
+@media (max-width: 321px) {
+  label.company {
+    padding: 0 10px;
+  }
+}/*# sourceMappingURL=navigation_style.css.map */
