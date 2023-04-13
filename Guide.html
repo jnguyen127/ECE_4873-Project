@@ -1,0 +1,765 @@
+<h1>Power Generation and Consumption Tracking</h1>
+<h2>Team Members</h2>
+<h3>Software Team</h3>
+<p><a href="https://www.linkedin.com/in/john-nguyen-ba8a951ab/">John Nguyen</a><br>
+    Christopher Mack III<br>
+<h3>Hardware Team</h3>
+Joshua Synder<br>
+Michael Landon<br>
+Nickolas Lee<br>
+John Fontejon<br>
+<h1>Table of Contents</h1>
+<a href="#overview">Overview</a><br>
+<a href="#optional">(Optional) Lambda Function</a><br>
+<a href="#1">1. AWS Account Setup</a><br>
+<a href="#2">2. IAM Setup</a><br>
+<a href="#3">3. EC2 Setup</a><br>
+<a href="#4">4. SES Setup</a><br>
+<a href="#5">5. DynamoDB Table Setup</a><br>
+<a href="#6">6. IoT Core Setup</a><br>
+<a href="#7">7. Microcontroller Setup</a><br>
+<a href="#8">8. EC2 Connection Setup</a><br>
+<a href="#9">9. Web Application</a><br>
+<a href="#parts">Parts</a><br>
+<a href="#references">References</a><br>
+</p>
+<section id="overview"><h1>Overview</h1></section>
+<p>
+    The device's purpose is to determine how much power is being generated based from a clamp ammeter which reads
+    and sends current readings to the microcontroller (ESP-32 WROOM-32D) which then sends those readings to a web
+    application through Amazon Web Services (AWS), in graph or tabular form. This is a guide for replicating this.
+</p>
+<p align="center"><img width="800" height="450" src="https://cdn.discordapp.com/attachments/1062806844290121781/1096126718609211474/image.png">
+</p>
+<p align="center">Figure 1. Web application for this device</p>
+<p align="center"><img src="https://github.gatech.edu/storage/user/59153/files/70f07675-bd62-435b-b91a-5ad14e0500c9">
+</p>
+<p align="center">Figure 2. System-level diagram for this device</p>
+<p align="center"><img width="800" height="450"
+        src="https://cdn.discordapp.com/attachments/1091169029034606602/1091169126438928446/IMG_3269.jpg"></p>
+<p align="center">Figure 3. The device with hardware support for 2 clamp channels.</p>
+<h3>Clamp System</h3>
+<p>The Clamp System is either a single clamp or group of clamps that is connected to the ADC (ADS1115), after it
+    gets rectified, which sends its/their readings to the ADC. The ADC is able to handle up to 4 analog inputs at a
+    single time which then outputs a 16-bit number that is associated with the analog input it received. Using I2C
+    as a way to have communication between the ADC and the microcontroller.<br><br>
+    The reason an external ADC is used instead of the internal ADC from the microcontroller is due to the precision.
+    Testing without the external ADC showed that for small changes in voltages, the resolution was not good which we
+    would lead to not as precise results. Having 4 extra bits greatly increased the resolution. However, there is
+    also an advantage to using this external ADC since it uses I2C as a way to communicate with the microcontroller.
+    Effectively, this means the number of clamps is much greater than 7. The ESP-32 WROOM-32D does have 15 ADC
+    inputs however ADC2 cannot be used since WiFi is used.
+</p><br>
+<p>Figure 2 shows that there is only one clamp attached. This is due to the limited time for this project, on the
+    software side, and not because it is not possible. There is a second port for an additional clamp which serves
+    as a proof of concept. Further modifications to the codes in the repo will be required in order to support more
+    than one clamp.</p>
+<p align="center"><img src="https://github.gatech.edu/storage/user/59153/files/7dae344e-d958-4e77-9a0a-635b84a49e6a">
+</p>
+<p align="center">Figure 4. Circuit block diagram for this device</p>
+<h3>Microcontroller</h3>
+<p>The microcontroller runs a program that indefinitely sends its readings to a server, based on the Clamp System,
+    until it is powered off. The server that will store data to be used for this application is AWS DynamoDB. The
+    reason this was chosen is due to its simplicity as well as it is cost efficient. It scales automatically based
+    on how much data the application requests/sends, and it can be cheap/free depending on how much load one uses.
+    Additionally, AWS has an internet of thing service (AWS IoT Core) which enables a microcontroller to send data
+    to its other services such as DynamoDB. In this application, MQTT requests are used to send data from the
+    microcontroller's pins to AWS DynamoDB. In order to support more than one clamp, multithreading may be required
+    since only one MQTT request can be sent at a time for the current code.</p>
+<h3>Web Application</h3>
+<p>The web application is based on using Flask. This application has features such as a login system, a live graph
+    of the data from the microcontroller, and more. This web application is hosted from an EC2 Instance through AWS.
+    Any information, such as a user's login, will also be stored and sent to AWS DynamoDB. The web application can
+    also be run through the user's personal system too, but this method allows user's not having to go through extra
+    steps to install resources such as python and it won't hog system resources.</p>
+<section id="optional"><h1>(Optional) Lambda Function</h1></section>
+<p>This section is going to be dedicated for setting up "Lambda" which is a service provided by AWS
+    that will be used to delete accounts that have not been verieid.</p><br>
+<p>1. Using the search bar, search "Lambda" and click it.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/280b2c76-b9ed-4416-b499-032321f943b6">
+</p><br>
+<p>2. Click "Create a function."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/694d217e-1842-4d51-99be-bc390efc19e1">
+</p><br>
+<p>2. Copy the screenshot.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/7cda0e50-83f8-4aaa-9583-02e9a1d0584b">
+</p><br>
+<p>3. Paste the 2 files "lambda_function.py" and "env.py" from the "Lambda_Function" folder into the lambda. Then click
+    "Deploy" to finish this step.
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/b4589724-beca-45e4-8e9a-044d6ee40c62">
+</p><br>
+<p>4. Then, if you want this to run automatically or on a schedule, you can use AWS's "CloudWatch" "Event Rule" to do
+    this.
+<section id="1"><h1>1. AWS Account Setup</h1></section>
+<p>This section is going to be dedicated for setting up a "free" AWS account.</p><br>
+<p>1. Create an account by visiting <a href="https://aws.amazon.com/">here</a> and click "Get Started for Free."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/c2a618c3-07d2-47f0-bab6-d895d489187d">
+</p><br>
+<p>2. Click "Create a Free Account".</p>
+<p>NOTE: Please do read what this type of account does offer because it will charge you if you use more than what
+    the free tier account offers.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/470608a5-4ddf-405f-851f-15caca2ce49c">
+</p><br>
+<p>3. Enter an email in "Root user email address" and an account name in "AWS account name" (i.e.
+    Web_Application_Account). After that, click "Verify email address."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/09c66944-af82-4695-b5ca-e17d96977929">
+</p><br>
+<p>4. Check the email that was entered and enter the verification code from the email to verify that email's
+    ownership. Click "Verify" after verification.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/b09ff74b-1745-48f9-9eff-79ff14fb64d8">
+</p><br>
+<p>5. After verifying the email, create a password for the account and then click "Continue (step 1 of 5)."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/e5c36e6c-0b0f-4481-b4e7-734060b83821">
+</p><br>
+<p>6. Enter the information as asked by AWS and check the box off after reading the terms and services from AWS.
+    Click "Continue (step 2 of 5)" to continue."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/39d49352-ee4c-4d25-94af-2d07a6316f87">
+</p><br>
+<p>7. Enter billing information in the fields, and then click "Verify and Continue (step 3 of 5)" to continue."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/e604ff2b-914c-4845-8563-46e0458689e6">
+</p><br>
+<p>8. Enter a phone number to verify the phone number, type the captcha text, and then click "Send SMS (step 4 of
+    5)."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/0869af1f-65c1-4bd0-b545-57685c73e6e2">
+</p><br>
+<p>9. Enter the code sent to the phone number and then click "Continue (step 4 of 5)."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/e5c06df5-b677-4219-835e-c324b527ce32">
+</p><br>
+<p>10. Now select the "Basic support - Free" plan and then click "Complete Sign Up."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/a3078dfe-64d8-4ae9-8cca-a6afd6b84b61">
+</p><br>
+<p>11. This should be the final screen after successfully creating an account. Click "Go to the AWS Management
+    Console" (or sign in).</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/a034ff7f-035d-4ad6-b784-6aa2c3938c77">
+</p><br>
+<p>12. This is the home page for the AWS account. On the top right, click the drop down box that is to the left of
+    the
+    AWS account name, and select the region that is nearest to where the application will be running from. This is a
+    crucial step for web application speed and consistency. In this example, the application is going to be near
+    North
+    Virginia so that is selected.</p>
+<p>NOTE: Keep note of the region too as that will be needed later (i.e. us-east-1). Us-east-1 will be used for the
+    reminder of this guide.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/41106f82-91df-419a-830a-9f5badec0d3d">
+</p>
+<section id="2"><h1>2. IAM Setup</h1></section>
+<h2>IAM User Creation</h2>
+<p>This next step is to give the web application, a user, access to DynamoDB which is where user data will be
+    stored.
+    Skipping this step would result in the web application not having access to data.
+    Additionally, it will give access for the web application to send emails using AWS's Simple Email Service (SES)
+    which will be explained later on how to set this service up.</p>
+<p>1. Using the search bar, search "IAM" and click it.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/dd0b0258-e704-435f-9c9f-36e6f3d132bc">
+</p><br>
+<p>2. At the IAM dashboard, click the number under "Users" in the "IAM resources" section.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/d5d0db10-fd54-4e0e-b319-7e2e624d7887">
+</p><br>
+<p>3. Click "Add Users."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/604323f4-fdfd-4e23-a4e3-8a74acf096eb">
+</p><br>
+<p>4. Add a user name for this user (i.e. Web_Application). Click "Next" after so.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/fc5509ef-385a-4c19-b14f-0b2d2992f1bc">
+</p><br>
+<p>5. Click "Attach policies directly" and add "AmazonDynamoDBFullAccess" by searching it under "Permissions
+    policies"
+    and check its checkbox.
+    Do the same for "AmazonSESFullAccess." The number next to "Permissions policies" should have 2 in the numerator.
+    These policies allow the web application to have full access of DynamoDB and SES. Click "Next."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/fb8b1252-7c00-45ca-8b8e-53abc1c92264">
+</p><br>
+<p>6. Confirm that this is what the final page looks like and then click "Create user."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/68533d6d-05f2-4fad-a718-23da0fef19d0">
+</p><br>
+<p>7. After creating the user, click the user's name.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/78ba8c1e-4251-4fad-acf8-aecdc425a833">
+</p><br>
+<p>8. Change the tab to "Security credentials" and then click "Create access key."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/b9fe3d3d-f1f2-403f-9e6d-7d582a320631">
+</p><br>
+<p>9. Select "Application running on an AWS compute service" and check the checkbox at the bottom. Click "Next."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/476c1fcc-3db0-480f-ad27-97e06b18e58f">
+</p><br>
+<p>10. Give a description for this access key like the following (optional). Click "Create access key."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/864325be-dd03-4650-859c-5eac8e465091">
+</p><br>
+<p>11. Copy both the "Access key" and "Secret access key" since you will need them later. The keys are not
+    recoverable if it is loss!
+    These keys allow the Web Application to access the AWS resources directly. Click "Done" once the access keys
+    have been copied.</p>
+<p>NOTE: Do not share these access keys and do not store them in plaintext.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/785c67e2-2f21-4070-89f4-852e4faaf8bf">
+</p>
+<h2>IAM Role Creation</h2>
+<p>This next step is to give the microcontroller access to DynamoDB which is where user data will be
+    stored.
+    Skipping this step would result in the microcontroller not having access to send data.</p>
+<p>1. Using the search bar, search "IAM" and click it.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/dd0b0258-e704-435f-9c9f-36e6f3d132bc">
+</p><br>
+<p>2. At the IAM dashboard, click the number under "Roles" in the "IAM resources" section.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/ac113a1a-8c8e-40bd-939c-e5d08b6cd74d">
+</p><br>
+<p>3. Click "Create role."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/e5601cf6-30aa-41ca-a979-03e70a370abf">
+</p><br>
+<p>4. Select "AWS service." Search "IoT" under "Use cases for other AWS service:" and select the option as shown.
+    Click
+    "Next."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/e6ac2aea-7a88-4065-b8fa-1a8a7123e526">
+</p><br>
+<p>5. Click "Set permissions boundary - optional" and then click "Use a permissions obundary to control the maximum
+    role
+    permissions." Next, search up "AmazonDynamoDBFullAccess" and click the tick to add it as a permission. Click
+    "Next."
+</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/75f13dad-de4a-4cf6-855e-0dfb4bef94e1">
+</p><br>
+<p>6. Add a role name for this role (i.e. Microcontroller). Confirm that this is what the final page looks like and
+    then
+    click "Create role."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/b54e3f09-7b27-4b57-800e-e6f94b80ffa1">
+</p><br>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/14062f13-ecbb-4081-bb8b-9a2188af4386">
+</p>
+<section id="3"><h1>3. EC2 Setup</h1></section>
+<h2>EC2 Instance Security Group</h2>
+<p>This section is going to be dedicated for setting up a security group for the EC2 instance. This will allow any user
+    to connect to the web application. Otherwise, they would not be able to.</p><br>
+<p>1. Using the search bar, search "EC2" and click it.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/a78f3ec4-481b-4745-ab25-89efb2ba1900">
+</p><br>
+<p>2. Under the "Network & Security" section on the left column, click "Security Groups."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/01abfa58-2ee7-44b1-b6c0-9c23e4015b26">
+</p><br>
+<p>3. Click "Create security group."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/0f2a8796-d3bf-4881-b00b-d0f416794e85">
+</p><br>
+<p>4. Add a name and description for the security group (i.e. Web Application SG - Allows traffic) and then click "Add
+    rule" under "Inbound rules."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/b1a92a13-2310-405e-851c-40f909905ca2">
+</p><br>
+<p>5. Under "Type" change the dropdown to "All traffic." Under "Source" change the dropdown to "Anywhere-IPv4." Click
+    "Create security group" to finish.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/2a2494da-540a-43d6-b835-d08ac565490a">
+</p>
+<h2>EC2 Instance Creation</h2>
+<p>This section is going to be dedicated for setting up an EC2 instance which is "virtual machine" that will host the
+    web application.</p><br>
+<p>1. Using the search bar, search "EC2" and click it.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/a78f3ec4-481b-4745-ab25-89efb2ba1900">
+</p><br>
+<p>2. Under the "Instances" section on the left column, click "Instances."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/7e65d9ff-fa81-42e7-9c43-e0767495ced1">
+</p><br>
+<p>3. Click "Launch instances."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/f38406ac-e906-4a1f-9aae-0df61e29bed6">
+</p><br>
+<p>4. Add a name for the instance (i.e. Web_Application). Then, under "Application and OS Images (Amazon Machine Image)"
+    select Ubuntu as the OS. Next, under "Amazon Machine Image (AMI)" select "Ubuntu Server 22.04 LTS (HVM), SSD
+    Volume
+    Type."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/1840ef18-2f25-40b0-bf5c-082be9d0551a">
+</p><br>
+<p>5. Under "Instance type," ensure that "t2.micro" is selected. It should be selected by default.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/d473e640-79c4-47b1-af1c-74926c6bb494">
+</p><br>
+<p>6. Under "Key pair (login)," click "Create new key pair."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/fdfdd0cd-6fb3-4a97-befe-299380f42a32">
+</p><br>
+<p>7. Add a name for the key pair (i.e. Web_Application_Key). Select "RSA" as the "Key pair type" and ".pem" as the
+    "Private key file format."
+    Click "Create key pair." It should have downloaded through the browser. Be sure this is kept somewhere for later
+    steps. This key allows one to be able to SSH (connect) to the instance.</p>
+<p>NOTE: Do not share this key.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/15f5007a-df41-4596-a330-6991aba846fb">
+</p><br>
+<p>8. Under "Network settings," click "Select existing security group" and select the security group that was created in
+    the "EC2 Instance Security Group" section. The summary should closely resemble the one in the
+    screenshot. Click "Launch instance" to finalize the setup.
+</p><br>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/2d0e2e1a-ffd5-40b4-98af-76a99a636b32">
+</p><br>
+<p>9. The instance is created, and the instance can be seen running by looking at the "Instance state" tab.
+</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/1018c6dd-b318-4c3e-affc-1177f475771b">
+</p>
+<section id="4"><h1>4. SES Setup</h1></section>
+<p>This section is going to be dedicated for setting up the "Simple Email Service" which is a service provided by AWS
+    that will be used to send emails to verify accounts and reset passwords.</p><br>
+<p>1. Using the search bar, search "Amazon Simple Email Service" and click it.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/42350358-1587-40f7-8829-7945fe5209be">
+</p><br>
+<p>2. Click "Verified identities" under "Configuration" and then click "Create identity".</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/e33fd00a-c788-49ab-af45-11daa08fe5ab">
+</p><br>
+<p>3. Click "Email address" and then enter an email address that would need to receive emails using this service. Follow
+    the instructions on the email to verify the email(s). Repeat
+    steps 1 and 2 if needed.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/2a611789-4e4b-483a-a6a2-0b0283667c76">
+</p><br>
+<p>4. The email address's status can be seen in the "Verified identities" tab under "Configuration." If it says
+    "Verified," then the email can now receive emails using SES.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/13a5521a-2bbf-431a-bac9-8afe6461fe82">
+</p>
+<section id="5"><h1>5. DynamoDB Table Setup</h1></section>
+<h2>DynamoDB Microcontroller Table Creation</h2>
+<p>This section is going to be dedicated for setting up the table that will store the microcontroller's data when it
+    sends data.</p><br>
+<p>1. Using the search bar, search "DynamoDB" and click it.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/8f48f1d1-f74a-4c77-82d6-d99330644092">
+</p><br>
+<p>2. Click "Create table."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/b01d3015-5cca-4f1d-a077-d95dc9aad77a">
+</p><br>
+<p>3. Add a name for the table, a partition key, and a sort key.</p>
+<p>NOTE: Have "_TABLE" at the end of the table name since this is how the web application will look for this table.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/8c95ad9c-a509-4ae3-a427-c355a3dc86ed">
+</p><br>
+<p>4. Copy the screenshots below and then click "Create table."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/7e5a077d-45c6-40cb-80b8-96398a426f54">
+</p><br>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/9d3deae9-0e13-4796-bf1e-4fce1463cfb2">
+</p>
+<h2>DynamoDB User Table Creation</h2>
+<p>This section is going to be dedicated for setting up the table that will store the user's data when it
+    user's sign up for the web application.</p><br>
+<p>1. Using the search bar, search "DynamoDB" and click it.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/8f48f1d1-f74a-4c77-82d6-d99330644092">
+</p><br>
+<p>2. Click "Create table."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/b01d3015-5cca-4f1d-a077-d95dc9aad77a">
+</p><br>
+<p>3. Add a name for the table, and a partition key.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/288d7d2b-0092-4249-9505-5d1e58f0b3dc">
+</p><br>
+<p>4. Copy the screenshots below and then click "Create table."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/fad94ecf-5321-4af1-93b4-3d922532bcb5">
+</p><br>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/f1ea16cc-61a8-4dc8-ac78-6f40523ccb7d">
+</p>
+<section id="6"><h1>6. IoT Core Setup</h1></section>
+<h2>IoT Add Thing</h2>
+<p>This section is going to be dedicated for setting up the microcontroller using "IoT Core" from AWS. This is going to
+    register the device to AWS.</p><br>
+<p>1. Using the search bar, search "IoT Core" and click it.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/02ab72b1-24e6-4bd0-93a8-ee40e7bd36a8">
+</p><br>
+<p>2. In the "Manage" section, click "All devices" to open a drop down menu and then click "Things."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/a55586c5-e0e8-4829-a40b-b5b8f9a137db">
+</p><br>
+<p>3. Click "Create things."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/bf3120ab-e1cb-4e8e-942f-34a169c679b6">
+</p><br>
+<p>4. Select "Create single thing" and then click "Next."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/18f9a065-853e-4df2-93c5-9cd725308d20">
+</p><br>
+<p>5. Add a name for the "thing" (i.e. Microcontroller), but make sure to make this the same name as the table in the
+    previous section <a
+        href="https://github.gatech.edu/jnguyen357/ECE-4873-Project/wiki/5.-DynamoDB-Table-Setup#dynamodb-microcontroller-table-creation">DynamoDB
+        Microcontroller Table Creation, step 3</a> (i.e. MICROCONTROLLER_TABLE), without the "_TABLE" portion. Then,
+    select "No shadow" in the
+    "Device Shadow" section. Click "Next" after doing so.</p>
+<p>NOTE: This name should be "registered" in the "Account Info" page on the web application (without the table portion).
+    The web application will use this IoT name to "automatically" reference the table that was created for it.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/a0af0ec4-b4d5-40e4-adcf-0db5833bbde5">
+</p><br>
+<p>6. Select "Auto-generate a new certificate (recommend)" and then click "Next."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/6bc1205d-7023-4867-ae72-29084d96e19f">
+</p><br>
+<p>7. Click "Create policy."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/52868bcc-34a8-45cb-9193-6ad72e2dc16a">
+</p><br>
+<p>8. Add a name for the policy (i.e. Microcontroller) and then click "JSON" underneath the "Policy statements" tab.
+</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/549afb1d-6d6c-4a91-a1d7-04aa7a67780b">
+</p><br>
+<p>9. In the "Policy document" text window, paste the following text into it. The purpose of these policy statements is
+    to define what "topics" the
+    microcontroller would be using to communicate with AWS using MQTT.</p>
+<code style="background-color:rgb(202, 202, 202)">{
+        "Version": "2012-10-17",
+        "Statement": [
+                {
+                "Effect": "Allow",
+                "Action": "iot:Connect",
+                "Resource": "arn:aws:iot:&lt;REGION&gt;:&lt;ACCOUNT_ID&gt;:client/&lt;THING_NAME&gt;"
+                },
+                {
+                "Effect": "Allow",
+                "Action": "iot:Subscribe",
+                "Resource": "arn:aws:iot:&lt;REGION&gt;:&lt;ACCOUNT_ID&gt;:topicfilter/&lt;THING_NAME&gt;/sub"
+                },
+                {
+                "Effect": "Allow",
+                "Action": "iot:Receive",
+                "Resource": "arn:aws:iot:&lt;REGION&gt;:&lt;ACCOUNT_ID&gt;:topic/&lt;THING_NAME&gt;/sub"
+                },
+                {
+                "Effect": "Allow",
+                "Action": "iot:Publish",
+                "Resource": "arn:aws:iot:&lt;REGION&gt;:&lt;ACCOUNT_ID&gt;:topic/&lt;THING_NAME&gt;/pub"
+                }
+        ]
+        }
+</code>
+<p>NOTE: Replace &lt;REGION&gt; with the account's region (i.e. us-east-1) which can be found next to the AWS account
+    name. Replace &lt;ACCOUNT_ID&gt; with the AWS "Account ID" which can be found in the AWS account name's drop
+    down menu, without the dashes. Also, replace &lt;THING_NAME&gt; with the IoT name (i.e. Microcontroller).</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/44a4cda4-60c4-41c7-98d8-f0b315f1840f">
+</p><br>
+<p>10. Below is an example of what the policy may look like when based on the "us-east-1" region which is in "North
+    Virginia." After finishing, click "Create."
+</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/364ef9ea-033d-4713-b342-efce884ad5ec">
+</p><br>
+<p>11. After creating the policy, go back to the original tab before clicking "Create policy" and then check off the
+    policy that was just created. Click "Create thing."
+</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/cd78cb66-3b4c-4895-838f-9ac20cbf1134">
+</p><br>
+<p>12. This is the final and crucial step. Download "Device certificate," "Public key file," "Private key file," and
+    "RSA 2048 bit key: Amazon Root CA 1." This will need to be provided to the IoT in a separate step so save this.
+</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/d1476a8f-8c72-4432-866e-797266c71988">
+</p>
+<h2>IoT Add Rule</h2>
+<p>This section is going to be dedicated for setting up the microcontroller's behavior by defining a rule when it
+    publishes a MQTT message.</p><br>
+<p>1. Using the search bar, search "IoT Core" and click it.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/02ab72b1-24e6-4bd0-93a8-ee40e7bd36a8">
+</p><br>
+<p>2. In the "Manage" section, click "Message routing" to open a drop down menu and then click "Rules."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/b382936b-7379-4a58-92ba-a51c2d5037f1">
+</p><br>
+<p>3. Add a name for the rule (i.e. Microcontroller_Publish) and a description (if desired). Click "Next" afterwards.
+</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/4e86ef67-a352-4f4c-9b84-40fbd9c3b89d">
+</p><br>
+<p>4. In "SQL version," select "2016-03-23" as the version, and then copy and paste the following text into "SQL
+    statement". Click "Next" after finishing this step.</p>
+<pre style="background-color:rgb(202, 202, 202)">SELECT * FROM '&lt;THING_NAME&gt;/pub'</pre>
+<p>NOTE: The text after "FROM" in the SQL statement, should be exactly the same as one of the policy statements from
+    the previous section, step 9.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/7b0e0d4c-7c4b-4883-94cf-b7236f3982b1">
+</p><br>
+<p>5. Under "Rule actions" click the drop down box and select "DynamoDBv2."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/e3aaeea8-0a7c-41fb-a1bd-68b15bde1c2b">
+</p><br>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/0f7a7b90-b269-40cc-8f40-ad0bc36cb781">
+</p><br>
+<p>6. Select "Table name," and select the table that was created to store the microcontroller's data. Also, select "IAM
+    role" and select the role that was created in the previous "IAM Role Creation" (i.e. Microcontroller) section.
+    Click "Next" after those previous steps.
+</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/324cc806-7882-4687-9792-5c3845326b6b">
+</p><br>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/744756df-622a-43f2-bb8c-db3857cef9c9">
+</p><br>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/06162a16-6305-4dae-aa3a-4db46030ffa5">
+</p><br>
+<p>7. Double check that the IoT rule is correct and then click "Create."
+</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/0134bea6-b4e1-44a1-8254-880a94d0a9cb">
+</p>
+<section id="7"><h1>7. Microcontroller Setup</h1></section>
+<h2>Arduino Setup</h2>
+<p>This section is going to be dedicated for setting up the environment to program the microcontroller using Arduino IDE
+    and Windows 10 64-bit as the OS.</p><br>
+<p>1. Go to <a href="https://www.arduino.cc/en/software">Arduino</a> to download the IDE.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/e1251df9-ac86-408d-8ea1-0a1f2f68dbad">
+</p><br>
+<p>2. After installing Arduino IDE, open it and go to the "Library Manager" (the books icon) and install the following
+    libraries.
+</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/976134b0-61fd-4942-911d-b707e67d597a">
+</p><br>
+<p>3. Then, go to "File," "Preferences," and then "Additional Board Manager URLs" and paste these URLs. Click "Ok" to
+    finalize this step.</p>
+<pre style="background-color:rgb(202, 202, 202)">
+• https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+• http://arduino.esp8266.com/stable/package_esp8266com_index.json
+</pre>
+<p><br></p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/65c1ee7f-7030-4372-b45b-4871a3b51524">
+</p><br>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/20b6b780-9fe8-46d7-b985-ec6b289eba64">
+</p><br>
+<p>4. Now, go to the "Board Manager" (the second icon) and install the following board.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/d6a9bc98-9f05-40db-a528-82cfa3a22d7b">
+</p><br>
+<p>5. Finally, go to <a href="https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads">Silabs</a>
+    to download the USB to UART to be able to program the microcontroller. Extract the zip file and then run and
+    install "CP210xVCPInstaller_x64.exe"</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/5227232a-e381-48f3-880a-ca722d921fd5">
+</p>
+<h1>Configure the Program</h1>
+<p>1. Before programming the microcontroller, the program needs to be configured to be able to connect to AWS IoT Core.
+    In the "PowerTap" folder, open "config.h" using any text editor. Then, fill out all of the empty variables. The
+    "THINGNAME" was done in step 5 of <a
+        href="https://github.gatech.edu/jnguyen357/ECE-4873-Project/wiki/6.-IoT-Core-Setup#iot-add-thing">IoT Add Thing
+        (i.e. Microcontroller).</a> "AWS_IOT_PUBLISH_TOPIC" and "AWS_IOT"SUBSCRIBE_TOPIC" is also in step 10 of this <a
+        href="https://github.gatech.edu/jnguyen357/ECE-4873-Project/wiki/6.-IoT-Core-Setup#iot-add-thing">section</a>
+    (i.e. "Microcontroller/pub" and "Microcontroller/sub," respectively). "WIFI_SSID" and "WIFI_PASSWORD" is just the
+    WiFi. it would connect to in order to have access to AWS. "AWS_IOT_ENDPOINT" can be found in the screenshot. The
+    rest of the variables are the IoT's certificates and key which was in step 12 of this <a
+        href="https://github.gatech.edu/jnguyen357/ECE-4873-Project/wiki/6.-IoT-Core-Setup#iot-add-thing"> section </a>.
+    Just match the file extension the comment of the config file indicates (the "...-public.pem.key" will not be used).
+</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/7c29f929-39b7-4dca-bddc-1170a19d1429">
+</p><br>
+<h2>Programming the Microcontroller</h2>
+<p>This section is going to be dedicated for programming the microcontroller.</p><br>
+<p>1. Go to "File" and then "Open" and open the sketch provided by the repo called "PowerTap.ino."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/d6792edb-e76b-425d-a57b-beb6567a4db8">
+</p><br>
+<p>2. Click the drop down and click "Select other board and port."</p>
+<p>NOTE: Make sure the board is plugged in for this step.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/c043a36c-0ce6-44fa-b5a9-bc7b0993bb9e">
+</p><br>
+<p>3. Select the port and select "ESP32 Dev Module." Click "Ok" to close the window.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/13adb362-988c-42d3-8f2f-d5a09acad30f">
+</p><br>
+<p>4. Now, to program board, click the "Upload" button. Hold down the "BOOT" button on the ESP32 until it goes past
+    "Connecting..." It should start writing, and then it will say "Leaving... Hard resetting via RTS pin..."
+    This means it has successfully been programmed!</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/bc62794f-d8f5-44ea-9ab7-0e26bcd24495">
+</p>
+<p align="center"><img src="https://github.gatech.edu/storage/user/59153/files/c64c72a3-994a-404c-9539-c517155787fc">
+</p>
+<section id="8"><h1>8. EC2 Connection Setup</h1></section>
+<h2>EC2 SSH Setup</h2>
+<p>This section is going to be dedicated for setting up the environment to SSH into the EC2 instance using MobaXTerm
+    and Windows 10 64-bit as the OS.</p><br>
+<p>1. Go to <a href="https://mobaxterm.mobatek.net/download.html">MobaXterm</a> to download the IDE.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/5dfa2816-501a-4b04-ba5b-a32828c0c7a6">
+</p><br>
+<p>3. Go to the directory that has the "Web_Application_Key.pem" that was downloaded from the <a
+        href="https://github.gatech.edu/jnguyen357/ECE-4873-Project/wiki/3.-EC2-Setup#ec2-instance-creation">EC2
+        Instance Creation section step 7</a>. Hold shift and right click the file, and click "Copy as path."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/f0737cad-f0e8-476a-9d50-81c13353df64">
+</p><br>
+<p>2. Open MobaXterm and click "Start local terminal."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/2dab3584-9c54-48eb-8b78-8a67423bdca0">
+</p><br>
+<p>4. Type "cd" and then paste (right click) the path with a space between
+    cd and the path. Also, remove the actual file from the path. The final line should look like this.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/28788b0f-9349-4164-b9f8-8c1df86d1603">
+</p><br>
+<p>5. Go to AWS and using the search bar, search "EC2" and click it.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/a78f3ec4-481b-4745-ab25-89efb2ba1900">
+</p><br></p>
+<p>6. Under the "Instances" section on the left column, click "Instances."</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/7e65d9ff-fa81-42e7-9c43-e0767495ced1">
+</p><br>
+<p>7. Now, check off the instance that was created and then click "Connect"</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/ffe1750a-1a5a-46e8-ab08-020931a02423">
+</p><br>
+<p>8. Go to the "SSH client" tab and copy the "ssh -i "Web_Application_Key.pem ..." line and paste it (right click) into
+    MobaXterm. The second screenshot is what should show up once you have successfully connected to the instance.
+</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/8b3879b6-3346-4123-9e6b-baddda2cee9b">
+</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/4cd5f85b-cd80-4237-b98b-d6f96ca9a7a4">
+</p>
+<h1>EC2 Transfer Web Application</h1>
+<p>This will quickly go over how to add files to the instance using MobaXterm.</p>
+<p>1. After connecting to the instance, drag over the folder "Web_Application" in the repo into the left column of
+    MobaXterm. The folder should show up on the left hand side.
+</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/5bfbbe29-1494-4f20-8b16-e4ea3f02d6c0">
+</p><br>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/f7352819-d287-4197-aa49-77602b68ac18">
+</p><br>
+<h2>EC2 Python Packages Setup</h2>
+<p>In order to run the web application using the instance, it needs some python packages. This will go over how to
+    install those packages.</p>
+<p>1. In sequential order, type these into the terminal and execute it. If it prompts, press "Enter."</p>
+<pre style="background-color:rgb(202, 202, 202)">
+• sudo apt update
+• sudo apt install software-properties-common
+• sudo apt update
+• sudo add-apt-repository ppa:deadsnakes/ppa
+• sudo apt-get update
+• sudo apt install python3.8
+• sudo apt install virtualenv
+• virtualenv -p /usr/bin/python3.8 ./venv
+• source venv/bin/activate
+• sudo apt-get install python3.8-distutils
+• cd "Web_Application"
+• pip install -r requirements.txt
+</pre>
+<section id="9"><h1>9. Web Application</h1></section>
+<h2>Configure Web Application</h2>
+<p>1. In order to run the web application, the configuration of one of the files needs to be filled out. In the
+    "Web_Application" folder open "env.py," using any text editor, and fill out all of the variables. The
+    "AWS_ACCESS_KEY" and "AWS_SECRET_ACCESS_KEY" was downloaded at <a
+        href="https://github.gatech.edu/jnguyen357/ECE-4873-Project/wiki/3.-EC2-Setup#ec2-instance-creation">step 7 of
+        the EC2 Instance Creation section."</a> "AWS_REGION" can be found at the top right of the AWS home page next to
+    the account name. "SES_SOURCE" is the email that would be sending emails to other users using SES. This email needs
+    to be verified through SES too. "SECRET_SALT" and "FLASK_SECRET_KEY" should be complex and different. These are
+    "seeds" that determine how the web application will encrypt and decrypt certain components (i.e. a user password).
+</p>
+<p>NOTE: There is a global variable called "offset" that needs to be configured when running the web application. It
+    should print the current time into the terminal of MobaXTerm. If that time does not match the time zone of the
+    microcontroller, the web application will not be able to retrieve the data from the table.</p>
+<h2>Running Web Application</h2>
+<p>1. To run the web application, just follow this one step. Note that this will have to be done, sequentially,
+    everytime MobaXterm refreshes/closes. The screenshot below shows what it should look like when the web
+    application is running.</p>
+<pre style="background-color:rgb(202, 202, 202)">
+• Open MobaXterm and click "Start local terminal"
+• <a href="https://github.gatech.edu/jnguyen357/ECE-4873-Project/wiki/8.-EC2-Connection-Setup#ec2-ssh-setup">SSH into the EC2 Instance</a>
+• source venv/bin/activate
+• cd "Web_Application"
+• python3.8 app.py runserver 0.0.0.0:5000
+</pre>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/58432792-9fa6-448e-9658-4715d11e08a3">
+</p>
+<h1>Access Web Application</h1>
+<p>1. To access the web application, just paste the same "ec2-X-XX-XXX-XXX.compute-1.amazonaws.com" but with ":5000" at
+    the end of it into a web browser (i.e. ec2-X-XX-XXX-XXX.compute-1.amazonaws.com:5000). If this is what shows up
+    at the URL, congratulations, access to the web application has been successful.</p>
+<p align="center"><img width="800" height="450"
+        src="https://github.gatech.edu/storage/user/59153/files/c795b1d3-97c8-4c75-9f7f-2055e1ae4e77">
+</p>
+<section id="parts"><h1>Parts</h1></section>
+• 1 SCT013 (100A:50mA) Clamp Current Transformer<br>
+• 1 ESP32-WROOM-32D<br>
+• 8 Schottky diodes<br>
+• 2 332 inductors<br>
+• 2 1000uF, 25V capacitors<br>
+• 2 100ohm resistors<br>
+• 1 1kohm resistor<br>
+• 1 LED<br>
+• 1 16-bit I2C ADC+PGA ADS1115 by Adafruit<br>
+• 1 2.1mm Barrel Jack Socket with Integrated Rocker Switch<br>
+• 2 3.5mm Headphone Jack Socket 5Pin<br>
+<section id="references"><h1>References</h1></section>
+<a href="https://gtvault.sharepoint.com/:b:/s/ECE4873-PowerPeople/EV_7p87y0hVCrJAZ1RK-Tt0B3xnY0vjJ4eOIBT4Lj31fVg?e=ZFVki5">Flask Web Application</a><br>
+<a href="https://youtu.be/oLgtucwjVII">Responsive Navigation Bar</a><br>
+<a href="https://www.youtube.com/watch?v=9XKRNfPrNpM">Responsive Login Form using HTML and CSS</a><br>
+<a href="https://dashbird.io/knowledge-base/dynamodb/dynamodb-pricing/">AWS DynamoDB Pricing</a><br>
+<a href="https://ron.sh/creating-real-time-charts-with-flask/">Real Time Chart Example with Flask</a><br>
+<a href="https://www.youtube.com/watch?v=Cf5Vyt8nSDo">How to Display Clicked Data Points in the Table in Chart JS</a><br>
+<a href="https://www.youtube.com/watch?v=O55kz7Yriog">How to Create a Table from Datasets in Chart JS</a><br>
+<a href="https://lastminuteengineers.com/esp32-ntp-server-date-time-tutorial/">ESP-32 Current Time</a><br>
+<a href="https://youtu.be/ktQoA4LV__w">AWS IoT: Storing IoT data into DynamoDB Database</a><br>
+<a href="https://stackoverflow.com/questions/31202956/json-typeerror-decimal34-3-is-not-json-serializable">JSON with Decimal</a><br>
+<a href="https://pythonprogramming.net/password-hashing-flask-tutorial/">Password Hashing with Flask</a><br>
+<a href="https://www.youtube.com/watch?v=cz2rG-OVXXU">Filtering Data on Chart JS</a><br>
+<a href="https://github.com/nithin-k-shine/Sending-sensor-data-from-ESP32-to-AWS-DynamoDB-cloud-storage">Send data from ESP-32 to DynamoDB Setup AWS Example</a><br>
+<a href="https://how2electronics.com/connecting-esp32-to-amazon-aws-iot-core-using-mqtt/">Send data from ESP-32 to DynamoDB Code Example</a><br>
+<a href="https://cplusplus.com/reference/ctime/tm/">Time API</a><br>
+<a href="https://www.youtube.com/watch?v=geKvJbQsOmM">Using Chart JS with Flask</a><br>
+<a href="https://randomnerdtutorials.com/esp32-adc-analog-read-arduino-ide/">Analog Read with ESP-32</a><br>
+<a href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html">ESP-32 Specifications</a><br>
+<a href="https://www.youtube.com/watch?v=5cbQNfO0Mwg">AC Rectifier Concept</a><br>
+<a href="https://www.adafruit.com/product/1085">ADS1115 - ADC with I2C Serial Communication</a><br>
