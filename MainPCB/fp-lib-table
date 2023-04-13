@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name "3.5 mm")(type "KiCad")(uri "D:/downloads")(options "")(descr ""))
+  (lib (name "downloads")(type "KiCad")(uri "D:/downloads")(options "")(descr ""))
+)
