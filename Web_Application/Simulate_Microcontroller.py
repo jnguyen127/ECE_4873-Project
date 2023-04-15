@@ -15,16 +15,16 @@ USER_TABLE = dynamodb.Table(USER_TABLE)
 
 if __name__ == '__main__':
     while True:
-        email = ""
+        email = "jhnguyen127@gmail.com"
         tableName = USER_TABLE.query(KeyConditionExpression=Key('Email').eq(email))[
             'Items'][0]['Device Name'].upper() + "_TABLE"
-        DATA_TABLE = dynamodb.Table(tableName) # - timedelta(seconds=<offset>) 
+        DATA_TABLE = dynamodb.Table(tableName)
         # Current time - (optional) timedelta. 
         # Make sure that whatever is printed is the correct time zone as the web application. 
         # Similarly to the microcontroller, the time zone could be off.
         # Just uncomment "- timedelta(seconds=<offset>)" and replace "<offset>" 
         # with the number of seconds you want to offset by.
-        offsetTime = datetime.now()
+        offsetTime = datetime.now() # - timedelta(seconds=<offset>) 
         offsetTime = str(offsetTime.strftime(
             "%m-%d-%y %H:%M:%S"))  # Time Formated
         print(offsetTime)
