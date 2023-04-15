@@ -213,23 +213,6 @@ $(function () {
         },
       });
     });
-
-    // For 30M filter
-    $("button#30M").on("click", function (e) {
-      e.preventDefault();
-      $.ajax({
-        url: "/getChartData30M'",
-        dataType: "text",
-        // Upon getting data/response from Flask, update the graph!
-        success: function (response) {
-          var json = JSON.parse(response);
-          lineChart.data.labels = json["labels"];
-          lineChart.data.datasets[0].data = json["data"];
-          lineChart.update();
-        },
-      });
-    });
-
   }
 });
 
