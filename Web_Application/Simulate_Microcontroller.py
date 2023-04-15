@@ -3,6 +3,7 @@ import boto3
 import time
 import random
 from datetime import datetime, timedelta
+from boto3.dynamodb.conditions import Key
 from env import AWS_ACCESS_KEY, AWS_SECRET_ACCESS_KEY, AWS_REGION, USER_TABLE
 
 ############################################################################################
