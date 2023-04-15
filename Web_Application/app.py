@@ -480,28 +480,6 @@ def get_chart_data_10m():
         data.append(results[0]['Power'])
     return jsonify({'labels': labels, 'data': data})
 
-@ app.route('/getChartData30M')
-def get_chart_data_30m():
-    global offset
-    global time_format
-    email = serializer.loads(session['email'], salt=SECRET_SALT)
-    tableName = USER_TABLE.query(KeyConditionExpression=Key('Email').eq(email))[
-        'Items'][0]['Device Name'].upper() + "_TABLE"
-    DATA_TABLE = dynamodb.Table(tableName)
-    labels = []
-    data = []
-    # Last 30 minutes data
-    for x in range(1800, 0, -1):
-        offsetTime = datetime.now() - timedelta(seconds=(x + offset))  # Current time - (x seconds + offset for timezone)
-        offsetTime = str(offsetTime.strftime(time_format))  # Time Formated
-        results = DATA_TABLE.query(KeyConditionExpression=Key(
-            'Timestamp').eq(offsetTime))['Items']
-        if not results:
-            continue
-        labels.append(results[0]['Timestamp'])
-        data.append(results[0]['Power'])
-    return jsonify({'labels': labels, 'data': data})
-
 @ app.route('/account_info', methods=['GET', 'POST'])
 def account_info_page():
     if check_session():
