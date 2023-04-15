@@ -20,6 +20,7 @@ John Fontejon<br>
 <a href="#7">7. Microcontroller Setup</a><br>
 <a href="#8">8. EC2 Connection Setup</a><br>
 <a href="#9">9. Web Application</a><br>
+<a href="#testing">(Optional) Simulate Microcontroller</a>
 <a href="#parts">Parts</a><br>
 <a href="#references">References</a><br>
 </p>
@@ -740,8 +741,9 @@ John Fontejon<br>
         password).
 </p>
 <p>NOTE: There is a global variable called "offset" that needs to be configured when running the web application. It
-        should print the current time into the terminal of MobaXTerm. If that time does not match the time zone of the
-        microcontroller, the web application will not be able to retrieve the data from the table.</p>
+        should print the current time + some delay (to allow the microcontroller to post the data first) into the
+        terminal of MobaXTerm. If that time does not match the time zone of the
+        microcontroller, the web application will not be able to retrieve the data from the table until hours later.</p>
 <h2>Running Web Application</h2>
 <p>1. To run the web application, just follow this one step. Note that this will have to be done, sequentially,
         everytime MobaXterm refreshes/closes. The screenshot below shows what it should look like when the web
@@ -766,7 +768,8 @@ John Fontejon<br>
 <section id="testing">
         <h1>(Optional) Simulate Microcontroller</h1>
 </section>
-<p>Ideally an actual microcontroller should be sending data, the "Simulate_Microcontroller.py" code is able to simulate
+<p>Ideally an actual microcontroller should be sending data, the optional "Simulate_Microcontroller.py" code is able to
+        simulate
         the microcontroller by sending data to the DynamoDB table. You can run this python code for testing purposes.
         Just fill in the user's email that you intend on testing on under the "email" variable.</p>
 <section id="parts">
