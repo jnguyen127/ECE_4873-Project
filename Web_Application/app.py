@@ -470,7 +470,7 @@ def get_chart_data_10m():
     data = []
     # Last 10 minutes data
     for x in range(600, 0, -1):
-        offsetTime = datetime.now() - timedelta(seconds=(x + offset))  # Current time - # Current time - (x seconds + offset for timezone)
+        offsetTime = datetime.now() - timedelta(seconds=(x + offset))  # Current time - (x seconds + offset for timezone)
         offsetTime = str(offsetTime.strftime(time_format))  # Time Formated
         results = DATA_TABLE.query(KeyConditionExpression=Key(
             'Timestamp').eq(offsetTime))['Items']
