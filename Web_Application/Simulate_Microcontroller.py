@@ -1,18 +1,9 @@
 #!flask/bin/python
 import boto3
-import re
-import json
 import time
 import random
 from datetime import datetime, timedelta
-from env import AWS_ACCESS_KEY, AWS_SECRET_ACCESS_KEY, AWS_REGION, USER_TABLE, SES_SOURCE, SECRET_SALT, FLASK_SECRET_KEY
-from flask import Flask, jsonify, abort, request, make_response, url_for, session, render_template, redirect, flash, get_flashed_messages, stream_with_context, Response
-from flask_session import Session
-from boto3.dynamodb.conditions import Key, Attr
-from botocore.exceptions import ClientError
-from itsdangerous import URLSafeTimedSerializer
-from flask_bcrypt import Bcrypt
-from decimal import Decimal
+from env import AWS_ACCESS_KEY, AWS_SECRET_ACCESS_KEY, AWS_REGION, USER_TABLE
 
 ############################################################################################
 ##################################### Useful variables #####################################
