@@ -27,7 +27,7 @@ if __name__ == '__main__':
         offsetTime = str(offsetTime.strftime(
             "%m-%d-%y %H:%M:%S"))  # Time Formated
         print(offsetTime)
-        random_number = str(random.uniform(829.3499756, 839.249939))
+        random_number = str(random.uniform(829.3499756, 831.249939))
         DATA_TABLE.put_item(
             Item={
                 "Timestamp": offsetTime,
