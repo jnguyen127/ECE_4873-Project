@@ -309,6 +309,7 @@ def home_page():
             KeyConditionExpression=Key('Email').eq(email))['Items']
         if not results[0]['Device Name']:
             flash('Please go to \'<a href="/account_info" style="color: red">Account Info</a>\' and register your device!', 'incorrect')
+            return render_template('home.html', average_kwh=0)
         tableName = USER_TABLE.query(KeyConditionExpression=Key('Email').eq(email))[
             'Items'][0]['Device Name'].upper() + "_TABLE"
         DATA_TABLE = dynamodb.Table(tableName)
