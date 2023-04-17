@@ -440,7 +440,7 @@ John Fontejon<br>
 </p><br>
 <p>5. Add a name for the "thing" (i.e. Microcontroller), but make sure to make this the same name as the table in the
         previous section <a
-                href="https://github.gatech.edu/jnguyen357/ECE-4873-Project/wiki/5.-DynamoDB-Table-Setup#dynamodb-microcontroller-table-creation">DynamoDB
+                href="#5">DynamoDB
                 Microcontroller Table Creation, step 3</a> (i.e. MICROCONTROLLER_TABLE), without the "_TABLE" portion.
         Then,
         select "No shadow" in the
@@ -608,12 +608,13 @@ John Fontejon<br>
 <p>1. Before programming the microcontroller, the program needs to be configured to be able to connect to AWS IoT Core.
         In the "PowerTap" folder, open "config.h" using any text editor. Then, fill out all of the empty variables. The
         "THINGNAME" was done in step 5 of the section <a href="#6">IoT Core Setup</a>.
-                (i.e. Microcontroller).</a> "AWS_IOT_PUBLISH_TOPIC" and "AWS_IOT"SUBSCRIBE_TOPIC" is also in step 10 of
-                of the section <a href="#6">IoT Core Setup</a>.
+        (i.e. Microcontroller).</a> "AWS_IOT_PUBLISH_TOPIC" and "AWS_IOT"SUBSCRIBE_TOPIC" is also in step 10 of
+        of the section <a href="#6">IoT Core Setup</a>.
         (i.e. "Microcontroller/pub" and "Microcontroller/sub," respectively). "WIFI_SSID" and "WIFI_PASSWORD" is just
         the
         WiFi. it would connect to in order to have access to AWS. "AWS_IOT_ENDPOINT" can be found in the screenshot. The
-        rest of the variables are the IoT's certificates and key which was in step 12 of the section <a href="#6">IoT Core Setup</a>.
+        rest of the variables are the IoT's certificates and key which was in step 12 of the section <a href="#6">IoT
+                Core Setup</a>.
         Just match the file extension the comment of the config file indicates (the "...-public.pem.key" will not be
         used).
 </p>
@@ -653,9 +654,8 @@ John Fontejon<br>
 <p align="center"><img width="800" height="450"
                 src="https://github.gatech.edu/storage/user/59153/files/5dfa2816-501a-4b04-ba5b-a32828c0c7a6">
 </p><br>
-<p>3. Go to the directory that has the "Web_Application_Key.pem" that was downloaded from the <a
-                href="https://github.gatech.edu/jnguyen357/ECE-4873-Project/wiki/3.-EC2-Setup#ec2-instance-creation">EC2
-                Instance Creation section step 7</a>. Hold shift and right click the file, and click "Copy as path."</p>
+<p>3. Go to the directory that has the "Web_Application_Key.pem" that was downloaded from the <a href="3">EC2
+        Instance Creation section step 7</a>. Hold shift and right click the file, and click "Copy as path."</p>
 <p align="center"><img width="800" height="450"
                 src="https://github.gatech.edu/storage/user/59153/files/f0737cad-f0e8-476a-9d50-81c13353df64">
 </p><br>
@@ -724,8 +724,7 @@ John Fontejon<br>
 <h2>Configure Web Application</h2>
 <p>1. In order to run the web application, the configuration of one of the files needs to be filled out. In the
         "Web_Application" folder open "env.py," using any text editor, and fill out all of the variables. The
-        "AWS_ACCESS_KEY" and "AWS_SECRET_ACCESS_KEY" was downloaded at <a
-                href="https://github.gatech.edu/jnguyen357/ECE-4873-Project/wiki/3.-EC2-Setup#ec2-instance-creation">step
+        "AWS_ACCESS_KEY" and "AWS_SECRET_ACCESS_KEY" was downloaded at <a href="3">step
                 7 of
                 the EC2 Instance Creation section."</a> "AWS_REGION" can be found at the top right of the AWS home page
         next to
@@ -764,7 +763,7 @@ John Fontejon<br>
         <h1>(Optional) Simulate Microcontroller</h1>
 </section>
 <p>Ideally an actual microcontroller should be sending data, the optional "Simulate_Microcontroller.py" code in the
-        "Web_Application" folder is used to "simulate" the microcontroller by 
+        "Web_Application" folder is used to "simulate" the microcontroller by
         sending data to the DynamoDB table. You can run this python code for testing purposes.
         Just fill in the user's email that you intend on testing on under the "email" variable.</p>
 <section id="parts">
