@@ -607,18 +607,13 @@ John Fontejon<br>
 <h1>Configure the Program</h1>
 <p>1. Before programming the microcontroller, the program needs to be configured to be able to connect to AWS IoT Core.
         In the "PowerTap" folder, open "config.h" using any text editor. Then, fill out all of the empty variables. The
-        "THINGNAME" was done in step 5 of <a
-                href="https://github.gatech.edu/jnguyen357/ECE-4873-Project/wiki/6.-IoT-Core-Setup#iot-add-thing">IoT
-                Add Thing
+        "THINGNAME" was done in step 5 of the section <a href="#6">IoT Core Setup</a>.
                 (i.e. Microcontroller).</a> "AWS_IOT_PUBLISH_TOPIC" and "AWS_IOT"SUBSCRIBE_TOPIC" is also in step 10 of
-        this <a
-                href="https://github.gatech.edu/jnguyen357/ECE-4873-Project/wiki/6.-IoT-Core-Setup#iot-add-thing">section</a>
+                of the section <a href="#6">IoT Core Setup</a>.
         (i.e. "Microcontroller/pub" and "Microcontroller/sub," respectively). "WIFI_SSID" and "WIFI_PASSWORD" is just
         the
         WiFi. it would connect to in order to have access to AWS. "AWS_IOT_ENDPOINT" can be found in the screenshot. The
-        rest of the variables are the IoT's certificates and key which was in step 12 of this <a
-                href="https://github.gatech.edu/jnguyen357/ECE-4873-Project/wiki/6.-IoT-Core-Setup#iot-add-thing">
-                section </a>.
+        rest of the variables are the IoT's certificates and key which was in step 12 of the section <a href="#6">IoT Core Setup</a>.
         Just match the file extension the comment of the config file indicates (the "...-public.pem.key" will not be
         used).
 </p>
@@ -750,7 +745,7 @@ John Fontejon<br>
         application is running.</p>
 <pre style="background-color:rgb(202, 202, 202)">
 • Open MobaXterm and click "Start local terminal"
-• <a href="https://github.gatech.edu/jnguyen357/ECE-4873-Project/wiki/8.-EC2-Connection-Setup#ec2-ssh-setup">SSH into the EC2 Instance</a>
+• SSH into the EC2 Instance
 • source venv/bin/activate
 • cd "Web_Application"
 • python3.8 app.py runserver 0.0.0.0:5000
