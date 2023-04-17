@@ -1,0 +1,4 @@
+boto3==1.4.4
+flask==2.2.2
+flask_session==0.4.0
+flask_bcrypt==1.0.1
