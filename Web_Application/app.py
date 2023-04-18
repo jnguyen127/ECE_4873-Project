@@ -547,6 +547,8 @@ def account_info_page():
                 flash("Password updated!", 'correct')
             elif newPassword != "" and not check_password(newPassword):
                 flash("Please make sure your password has the following: Has minimum 8 characters in length. At least one uppercase English letter. At least one lowercase English letter. At least one digit. At least one special character (i.e. #?!@$%^&*-)", 'incorrect')
+            else:
+                flash("That is your current password. Please enter a different password", 'incorrect')
             return redirect('/account_info')
         else:
             if results[0]['Status'] == "Confirmed":
