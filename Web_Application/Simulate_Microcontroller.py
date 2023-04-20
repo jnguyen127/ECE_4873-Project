@@ -15,7 +15,7 @@ USER_TABLE = dynamodb.Table(USER_TABLE)
 
 if __name__ == '__main__':
     while True:
-        email = "jhnguyen127@gmail.com"
+        email = ""
         tableName = USER_TABLE.query(KeyConditionExpression=Key('Email').eq(email))[
             'Items'][0]['Device Name'].upper() + "_TABLE"
         DATA_TABLE = dynamodb.Table(tableName)
